@@ -1170,20 +1170,35 @@
 
         // ===================== 发送邮件 =====================
         function sendEmail() {
-            const data = collectData();
-            if (!validateRequired(data)) return;
+    const data = collectData();
+    if (!validateRequired(data)) return;
 
-            const t = i18n[currentLang];
-            const subject = encodeURIComponent(`${t.headerTitle} - ${data.name} - ${data.date}`);
-            
-            // 构建纯文本邮件正文
-            const body = buildMessage(data).replace(/\*/g, '').replace(/━/g, '─');
-            const encodedBody = encodeURIComponent(body);
+    const t = i18n[currentLang];
+    const subject = `${t.headerTitle} - ${data.name} - ${data.date}`;
+    
+    const body = buildMessage(data)
+        .replace(/\*/g, '')
+        .replace(/━/g, '─');
 
-            const url = `mailto:Ibrahim.Fatah@titan.com.eg?subject=${subject}&body=${encodedBody}`;
-            window.location.href = url;
-            showToast(i18n[currentLang].toastEmail, 'info');
-        }
+    const encodedSubject = encodeURIComponent(subject);
+    const encodedBody = encodeURIComponent(body);
+
+    // Outlook Web (primary)
+    const outlookUrl = `https://outlook.office.com/mail/deeplink/compose?to=Ibrahim.Fatah@titan.com.eg&subject=${encodedSubject}&body=${encodedBody}`;
+
+    // Fallback (default mail app)
+    const mailtoUrl = `mailto:Ibrahim.Fatah@titan.com.eg?subject=${encodedSubject}&body=${encodedBody}`;
+
+    // Try Outlook first
+    const newWindow = window.open(outlookUrl, '_blank');
+
+    // If blocked, fallback
+    if (!newWindow) {
+        window.location.href = mailtoUrl;
+    }
+
+    showToast(i18n[currentLang].toastEmail, 'info');
+}
 
         // ===================== Toast通知 =====================
         function showToast(message, type = 'info') {
