@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Safety Report | تقرير السلامة</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['DM Sans', 'Cairo', 'sans-serif'],
+                        ar: ['Cairo', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        :root {
+            --bg: #f0f2f5;
+            --card: #ffffff;
+            --header: #1a1f2e;
+            --header-light: #252b3d;
+            --text: #1a1f2e;
+            --text-secondary: #6b7280;
+            --text-light: #f1f5f9;
+            --accent: #d97706;
+            --accent-light: #fef3c7;
+            --border: #e5e7eb;
+            --safe: #16a34a;
+            --unsafe-cond: #dc2626;
+            --unsafe-act: #ea580c;
+            --near-miss: #ca8a04;
+            --save: #0f766e;
+            --whatsapp: #25D366;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { 
+            margin: 0; padding: 0; 
+            background: var(--bg);
+            font-family: 'DM Sans', 'Cairo', sans-serif;
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        /* 工业斜线纹理背景 */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background-image: 
+                repeating-linear-gradient(
+                    45deg,
+                    transparent,
+                    transparent 40px,
+                    rgba(0,0,0,0.012) 40px,
+                    rgba(0,0,0,0.012) 41px
+                ),
+                repeating-linear-gradient(
+                    -45deg,
+                    transparent,
+                    transparent 40px,
+                    rgba(0,0,0,0.012) 40px,
+                    rgba(0,0,0,0.012) 41px
+                );
+        }
+
+        html[dir="rtl"] body, html[dir="rtl"] * {
+            font-family: 'Cairo', 'DM Sans', sans-serif;
+        }
+
+        /* 危险条纹装饰 */
+        .hazard-stripe {
+            height: 4px;
+            background: repeating-linear-gradient(
+                -45deg,
+                #f59e0b,
+                #f59e0b 8px,
+                #1a1f2e 8px,
+                #1a1f2e 16px
+            );
+        }
+
+        /* 卡片入场动画 */
+        .card-animate {
+            opacity: 0;
+            transform: translateY(16px);
+            animation: slideUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+        @keyframes slideUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 卡片样式 */
+        .report-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+            transition: box-shadow 0.2s ease;
+        }
+        .report-card:hover {
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.06);
+        }
+
+        .card-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card-label i { color: var(--accent); font-size: 14px; }
+
+        /* 输入框样式 */
+        .input-field {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            font-size: 15px;
+            font-family: inherit;
+            background: #f8f9fb;
+            color: var(--text);
+            transition: all 0.2s ease;
+            outline: none;
+        }
+        .input-field:focus {
+            border-color: var(--accent);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(217,119,6,0.12);
+        }
+        .input-field::placeholder { color: #b0b5bf; }
+
+        select.input-field {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%236b7280' viewBox='0 0 16 16'%3E%3Cpath d='M4.5 6l3.5 4 3.5-4z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 36px;
+            cursor: pointer;
+        }
+        html[dir="rtl"] select.input-field {
+            background-position: left 12px center;
+            padding-right: 14px;
+            padding-left: 36px;
+        }
+
+        textarea.input-field { resize: none; min-height: 100px; line-height: 1.6; }
+
+        /* 分类按钮 */
+        .class-btn {
+            flex: 1;
+            min-height: 48px;
+            border-radius: 12px;
+            border: 2px solid transparent;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 8px 6px;
+            color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+        .class-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transition: opacity 0.2s;
+            background: rgba(255,255,255,0.15);
+        }
+        .class-btn:active::before { opacity: 1; }
+        .class-btn.active { transform: scale(1.03); box-shadow: 0 4px 14px rgba(0,0,0,0.2); }
+        .class-btn:not(.active) { opacity: 0.55; filter: saturate(0.7); }
+
+        .class-safe { background: var(--safe); }
+        .class-unsafe-cond { background: var(--unsafe-cond); }
+        .class-unsafe-act { background: var(--unsafe-act); }
+        .class-near-miss { background: var(--near-miss); }
+
+        /* 复选框按钮 */
+        .check-btn {
+            padding: 10px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #f8f9fb;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .check-btn:hover { border-color: #d1d5db; background: #f0f1f4; }
+        .check-btn.active {
+            border-color: var(--accent);
+            background: var(--accent-light);
+            color: #92400e;
+        }
+        .check-btn .check-icon {
+            width: 20px; height: 20px;
+            border-radius: 6px;
+            border: 2px solid #d1d5db;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .check-btn.active .check-icon {
+            border-color: var(--accent);
+            background: var(--accent);
+            color: #fff;
+        }
+
+        /* 其他输入框 */
+        .other-input {
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: max-height 0.3s ease, opacity 0.3s ease, margin 0.3s ease;
+            margin-top: 0;
+        }
+        .other-input.show {
+            max-height: 60px;
+            opacity: 1;
+            margin-top: 10px;
+        }
+
+        /* 麦克风按钮 */
+        .mic-btn {
+            width: 44px; height: 44px;
+            border-radius: 12px;
+            border: 1.5px solid var(--border);
+            background: #f8f9fb;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .mic-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .mic-btn.recording {
+            background: #fef2f2;
+            border-color: #dc2626;
+            color: #dc2626;
+            animation: micPulse 1.2s ease-in-out infinite;
+        }
+        @keyframes micPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(220,38,38,0.3); }
+            50% { box-shadow: 0 0 0 8px rgba(220,38,38,0); }
+        }
+
+        /* 底部操作栏 */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 40;
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-top: 1px solid var(--border);
+            padding: 12px 16px;
+            padding-bottom: max(12px, env(safe-area-inset-bottom));
+        }
+        .bottom-bar-inner {
+            max-width: 480px;
+            margin: 0 auto;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn-action {
+            flex: 1;
+            height: 50px;
+            border: none;
+            border-radius: 14px;
+            font-size: 15px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            color: #fff;
+        }
+        .btn-action:active { transform: scale(0.97); }
+
+        .btn-save { background: var(--save); }
+        .btn-save:hover { background: #0d6b63; }
+        .btn-whatsapp { background: var(--whatsapp); flex: 1.2; }
+        .btn-whatsapp:hover { background: #20bd5a; }
+        .btn-email {
+            width: 50px;
+            flex: none;
+            background: #6366f1;
+        }
+        .btn-email:hover { background: #4f46e5; }
+
+        /* 相机FAB */
+        .fab-camera {
+            position: fixed;
+            z-index: 45;
+            bottom: 90px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: none;
+            background: var(--accent);
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(217,119,6,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .fab-camera:hover { transform: scale(1.08); box-shadow: 0 6px 20px rgba(217,119,6,0.5); }
+        .fab-camera:active { transform: scale(0.95); }
+        html[dir="rtl"] .fab-camera { right: auto; left: 20px; }
+
+        /* 照片预览 */
+        .photo-preview {
+            border-radius: 14px;
+            overflow: hidden;
+            border: 2px solid var(--accent);
+            position: relative;
+            display: none;
+        }
+        .photo-preview.show { display: block; }
+        .photo-preview img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            display: block;
+        }
+        .photo-preview .remove-photo {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(0,0,0,0.6);
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        .photo-preview .remove-photo:hover { background: rgba(220,38,38,0.8); }
+        html[dir="rtl"] .photo-preview .remove-photo { right: auto; left: 8px; }
+
+        /* Toast通知 */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            z-index: 100;
+            padding: 14px 24px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 600;
+            font-family: inherit;
+            color: #fff;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+            white-space: nowrap;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+            pointer-events: auto;
+        }
+        .toast-success { background: var(--safe); }
+        .toast-error { background: var(--unsafe-cond); }
+        .toast-info { background: var(--header); }
+
+        /* 语言切换按钮 */
+        .lang-toggle {
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.1);
+            color: var(--text-light);
+            font-size: 12px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.5px;
+        }
+        .lang-toggle:hover { background: rgba(255,255,255,0.18); }
+
+        /* 用户头部信息 */
+        .user-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.7);
+            font-size: 12px;
+        }
+
+        /* 保存数量标记 */
+        .saved-count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 20px;
+            height: 20px;
+            padding: 0 6px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.25);
+            font-size: 11px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        /* 滚动条美化 */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+
+        /* 减少动画偏好 */
+        @media (prefers-reduced-motion: reduce) {
+            .card-animate { animation: none; opacity: 1; transform: none; }
+            .mic-btn.recording { animation: none; }
+            .fab-camera, .btn-action, .class-btn, .check-btn { transition: none; }
+        }
+
+        /* 桌面端居中显示 */
+        @media (min-width: 520px) {
+            body { background: #e5e7eb; }
+            #app-container {
+                box-shadow: 0 0 60px rgba(0,0,0,0.1);
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app-container" class="max-w-[480px] mx-auto min-h-screen relative" style="background: var(--bg);">
+        
+        <!-- 顶部危险条纹 -->
+        <div class="hazard-stripe"></div>
+
+        <!-- 头部 -->
+        <header style="background: var(--header);" class="sticky top-0 z-30">
+            <div class="px-4 pt-4 pb-3">
+                <!-- 上层：语言切换 + 日期 -->
+                <div class="flex items-center justify-between mb-3">
+                    <button class="lang-toggle" onclick="toggleLanguage()" aria-label="Toggle language">
+                        <i class="fas fa-globe" style="margin-right:4px;"></i>
+                        <span id="langLabel">عربي</span>
+                    </button>
+                    <div class="user-badge">
+                        <i class="far fa-calendar"></i>
+                        <span id="currentDate"></span>
+                    </div>
+                </div>
+                <!-- 标题行 -->
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-xl font-bold" style="color: var(--text-light);" id="headerTitle">Safety Report</h1>
+                        <p class="text-xs mt-0.5" style="color: rgba(255,255,255,0.45);" id="headerSub">Titan Cement Factory</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="user-badge" id="savedBadge" style="display:none;">
+                            <i class="fas fa-database" style="font-size:10px;"></i>
+                            <span class="saved-count" id="savedCount">0</span>
+                        </div>
+                        <div style="width:40px;height:40px;border-radius:12px;background:var(--accent);display:flex;align-items:center;justify-content:center;">
+                            <i class="fas fa-shield-halved" style="color:#fff;font-size:18px;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- 主内容区 -->
+        <main class="px-4 pt-4 pb-36 space-y-3" id="mainContent">
+
+            <!-- 用户信息卡片 -->
+            <div class="report-card card-animate" style="animation-delay:0.05s;">
+                <div class="card-label">
+                    <i class="fas fa-user-hard-hat"></i>
+                    <span data-i18n="userInfo">Worker Information</span>
+                </div>
+                <div class="flex gap-3">
+                    <div class="flex-1">
+                        <input type="text" class="input-field" id="userName" data-placeholder-i18n="namePlaceholder" placeholder="Your full name" autocomplete="off">
+                    </div>
+                    <div class="flex-1">
+                        <input type="text" class="input-field" id="userSector" data-placeholder-i18n="sectorPlaceholder" placeholder="Your sector" autocomplete="off">
+                    </div>
+                </div>
+                <!-- 欢迎信息 -->
+                <div class="mt-3 flex items-center gap-2" id="welcomeRow" style="display:none;">
+                    <i class="fas fa-hand-wave" style="color:var(--accent);font-size:14px;"></i>
+                    <span class="text-sm font-medium" style="color:var(--text-secondary);" id="welcomeText"></span>
+                </div>
+            </div>
+
+            <!-- 区域选择卡片 -->
+            <div class="report-card card-animate" style="animation-delay:0.1s;">
+                <div class="card-label">
+                    <i class="fas fa-location-dot"></i>
+                    <span data-i18n="area">Specific Area</span>
+                </div>
+                <select class="input-field" id="areaSelect">
+                    <option value="" disabled selected data-i18n-option="selectArea">Select area...</option>
+                </select>
+            </div>
+
+            <!-- 描述卡片 -->
+            <div class="report-card card-animate" style="animation-delay:0.15s;">
+                <div class="card-label">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span data-i18n="description">Finding Description</span>
+                </div>
+                <div class="flex gap-3 items-start">
+                    <textarea class="input-field flex-1" id="descInput" data-placeholder-i18n="descPlaceholder" placeholder="Describe what you observed in detail..." rows="4"></textarea>
+                    <button class="mic-btn" id="micBtn" onclick="toggleVoiceInput()" aria-label="Voice input">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 分类卡片 -->
+            <div class="report-card card-animate" style="animation-delay:0.2s;">
+                <div class="card-label">
+                    <i class="fas fa-tags"></i>
+                    <span data-i18n="classification">Classification</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2" id="classBtns">
+                    <button class="class-btn class-safe" data-class="safe" onclick="selectClassification('safe')">
+                        <i class="fas fa-check-circle" style="margin-right:4px;"></i>
+                        <span data-i18n="safe">Safe</span>
+                    </button>
+                    <button class="class-btn class-unsafe-cond" data-class="unsafeCondition" onclick="selectClassification('unsafeCondition')">
+                        <i class="fas fa-triangle-exclamation" style="margin-right:4px;"></i>
+                        <span data-i18n="unsafeCond">Unsafe Condition</span>
+                    </button>
+                    <button class="class-btn class-unsafe-act" data-class="unsafeAct" onclick="selectClassification('unsafeAct')">
+                        <i class="fas fa-person-falling-burst" style="margin-right:4px;"></i>
+                        <span data-i18n="unsafeAct">Unsafe Act</span>
+                    </button>
+                    <button class="class-btn class-near-miss" data-class="nearMiss" onclick="selectClassification('nearMiss')">
+                        <i class="fas fa-bolt" style="margin-right:4px;"></i>
+                        <span data-i18n="nearMiss">Near Miss</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 根本原因卡片 -->
+            <div class="report-card card-animate" style="animation-delay:0.25s;">
+                <div class="card-label">
+                    <i class="fas fa-magnifying-glass-chart"></i>
+                    <span data-i18n="rootCauses">Root Causes</span>
+                </div>
+                <div class="flex flex-col gap-2" id="rootCausesContainer">
+                    <button class="check-btn" data-cause="lackOfTraining" onclick="toggleCheck(this, 'rootCauses')">
+                        <span class="check-icon"><i class="fas fa-check" style="display:none;"></i></span>
+                        <span data-i18n="lackTraining">Lack of Training</span>
+                    </button>
+                    <button class="check-btn" data-cause="equipmentFailure" onclick="toggleCheck(this, 'rootCauses')">
+                        <span class="check-icon"><i class="fas fa-check" style="display:none;"></i></span>
+                        <span data-i18n="equipFail">Equipment Failure</span>
+                    </button>
+                    <button class="check-btn" data-cause="poorHousekeeping" onclick="toggleCheck(this, 'rootCauses')">
+                        <span class="check-icon"><i class="fas fa-check" style="display:none;"></i></span>
+                        <span data-i18n="poorHouse">Poor Housekeeping</span>
+                    </button>
+                    <button class="check-btn" data-cause="unsafeBehavior" onclick="toggleCheck(this, 'rootCauses')">
+                        <span class="check-icon"><i class="fas fa-check" style="display:none;"></i></span>
+                        <span data-i18n="unsafeBehavior">Unsafe Behavior</span>
+                    </button>
+                    <button class="check-btn" data-cause="other" onclick="toggleCheck(this, 'rootCauses')">
+                        <span class="check-icon"><i class="fas fa-check" style="display:none;"></i></span>
+                        <span data-i18n="other">Other</span>
+                    </button>
+                    <div class="other-input" id="rootCausesOtherInput">
+                        <input type="text" class="input-field" id="rootCausesOtherText" data-placeholder-i18n="specifyOther" placeholder="Please specify...">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 所需行动卡片 -->
+            <div class="report-card card-animate" style="animation-delay:0.3s;">
+                <div class="card-label">
+                    <i class="fas fa-bolt-lightning"></i>
+                    <span data-i18n="actionNeeded">Action Needed</span>
+                </div>
+                <div class="flex flex-col gap-2" id="actionContainer">
+                    <button class="check-btn" data-action="fixImmediately" onclick="toggleCheck(this, 'actions')">
+                        <span class="check-icon"><i class="fas fa-check" style="display:none;"></i></span>
+                        <span data-i18n="fixNow">Fix Immediately</span>
+                    </button>
+                    <button class="check-btn" data-action="cleanArea" onclick="toggleCheck(this, 'actions')">
+                        <span class="check-icon"><i class="fas fa-check" style="display:none;"></i></span>
+                        <span data-i18n="cleanArea">Clean Area</span>
+                    </button>
+                    <button class="check-btn" data-action="provideTraining" onclick="toggleCheck(this, 'actions')">
+                        <span class="check-icon"><i class="fas fa-check" style="display:none;"></i></span>
+                        <span data-i18n="provideTrain">Provide Training</span>
+                    </button>
+                    <button class="check-btn" data-action="stopEquipment" onclick="toggleCheck(this, 'actions')">
+                        <span class="check-icon"><i class="fas fa-check" style="display:none;"></i></span>
+                        <span data-i18n="stopEquip">Stop Equipment</span>
+                    </button>
+                    <button class="check-btn" data-action="other" onclick="toggleCheck(this, 'actions')">
+                        <span class="check-icon"><i class="fas fa-check" style="display:none;"></i></span>
+                        <span data-i18n="other">Other</span>
+                    </button>
+                    <div class="other-input" id="actionsOtherInput">
+                        <input type="text" class="input-field" id="actionsOtherText" data-placeholder-i18n="specifyOther" placeholder="Please specify...">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 照片预览 -->
+            <div class="photo-preview card-animate" id="photoPreview" style="animation-delay:0.35s;">
+                <img id="photoImg" src="" alt="Captured photo">
+                <button class="remove-photo" onclick="removePhoto()" aria-label="Remove photo">
+                    <i class="fas fa-xmark"></i>
+                </button>
+                <div style="position:absolute;bottom:0;left:0;right:0;padding:8px 14px;background:linear-gradient(transparent, rgba(0,0,0,0.6));display:flex;align-items:center;gap:6px;">
+                    <i class="fas fa-image" style="color:#fff;font-size:12px;"></i>
+                    <span style="color:#fff;font-size:12px;font-weight:600;" data-i18n="photoAttached">Photo Attached</span>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- 相机浮动按钮 -->
+        <button class="fab-camera" onclick="openCamera()" aria-label="Take photo">
+            <i class="fas fa-camera"></i>
+        </button>
+        <input type="file" accept="image/*" capture="environment" id="cameraInput" style="display:none;" onchange="handlePhoto(event)">
+
+        <!-- 底部操作栏 -->
+        <div class="bottom-bar">
+            <div class="bottom-bar-inner">
+                <button class="btn-action btn-save" onclick="saveReport()">
+                    <i class="fas fa-floppy-disk"></i>
+                    <span data-i18n="save">Save</span>
+                </button>
+                <button class="btn-action btn-email" onclick="sendEmail()" aria-label="Send via email">
+                    <i class="fas fa-envelope"></i>
+                </button>
+                <button class="btn-action btn-whatsapp" onclick="sendWhatsApp()">
+                    <i class="fab fa-whatsapp" style="font-size:18px;"></i>
+                    <span data-i18n="sendWA">Send WhatsApp</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Toast通知 -->
+        <div class="toast" id="toast"></div>
+    </div>
+
+    <script>
+        // ===================== 翻译系统 =====================
+        const i18n = {
+            en: {
+                langLabel: 'عربي',
+                headerTitle: 'Safety Report',
+                headerSub: 'Titan Cement Factory',
+                userInfo: 'Worker Information',
+                namePlaceholder: 'Your full name',
+                sectorPlaceholder: 'Your sector',
+                area: 'Specific Area',
+                selectArea: 'Select area...',
+                areas: [
+                    'Kiln Area', 'Raw Mill Area', 'Cement Mill Area', 'Parking Area',
+                    'Raw Material Handling Area', 'Crusher Area', 'Cooler Area', 'Preheater Area'
+                ],
+                description: 'Finding Description',
+                descPlaceholder: 'Describe what you observed in detail...',
+                classification: 'Classification',
+                safe: 'Safe',
+                unsafeCond: 'Unsafe Condition',
+                unsafeAct: 'Unsafe Act',
+                nearMiss: 'Near Miss',
+                rootCauses: 'Root Causes',
+                lackTraining: 'Lack of Training',
+                equipFail: 'Equipment Failure',
+                poorHouse: 'Poor Housekeeping',
+                unsafeBehavior: 'Unsafe Behavior',
+                other: 'Other',
+                specifyOther: 'Please specify...',
+                actionNeeded: 'Action Needed',
+                fixNow: 'Fix Immediately',
+                cleanArea: 'Clean Area',
+                provideTrain: 'Provide Training',
+                stopEquip: 'Stop Equipment',
+                photoAttached: 'Photo Attached',
+                save: 'Save',
+                sendWA: 'Send WhatsApp',
+                welcome: 'Welcome,',
+                toastSaved: 'Report saved successfully',
+                toastSent: 'Opening WhatsApp...',
+                toastEmail: 'Opening email client...',
+                toastFill: 'Please fill in name, area, and description',
+                toastVoiceStart: 'Listening...',
+                toastVoiceStop: 'Voice input stopped',
+                toastVoiceError: 'Voice input not supported',
+                toastPhoto: 'Photo captured',
+            },
+            ar: {
+                langLabel: 'EN',
+                headerTitle: 'تقرير السلامة',
+                headerSub: 'مصنع تيتان للاسمنت',
+                userInfo: 'بيانات العامل',
+                namePlaceholder: 'اسمك الثلاثي',
+                sectorPlaceholder: 'قطاعك',
+                area: 'المنطقة المحددة',
+                selectArea: 'اختر المنطقة...',
+                areas: [
+                    'منطقة الكيلن', 'منطقة الطاحونة الخام', 'منطقة طاحونة الأسمنت', 'منطقة المواقف',
+                    'منطقة تعامل المواد الخام', 'منطقة الكسارة', 'منطقة التبريد', 'منطقة التسخين المسبق'
+                ],
+                description: 'وصف الملاحظة',
+                descPlaceholder: 'صف ما لاحظته بالتفصيل...',
+                classification: 'التصنيف',
+                safe: 'آمن',
+                unsafeCond: 'حالة غير آمنة',
+                unsafeAct: 'فعل غير آمن',
+                nearMiss: 'شبه حادث',
+                rootCauses: 'الأسباب الجذرية',
+                lackTraining: 'نقص التدريب',
+                equipFail: 'عطل المعدات',
+                poorHouse: 'سوء النظافة والترتيب',
+                unsafeBehavior: 'سلوك غير آمن',
+                other: 'أخرى',
+                specifyOther: 'يرجى التحديد...',
+                actionNeeded: 'الإجراء المطلوب',
+                fixNow: 'إصلاح فوري',
+                cleanArea: 'تنظيف المنطقة',
+                provideTrain: 'تقديم تدريب',
+                stopEquip: 'إيقاف المعدات',
+                photoAttached: 'صورة مرفقة',
+                save: 'حفظ',
+                sendWA: 'واتساب',
+                welcome: 'مرحباً،',
+                toastSaved: 'تم حفظ التقرير بنجاح',
+                toastSent: 'جاري فتح واتساب...',
+                toastEmail: 'جاري فتح البريد...',
+                toastFill: 'يرجى ملء الاسم والمنطقة والوصف',
+                toastVoiceStart: 'جاري الاستماع...',
+                toastVoiceStop: 'تم إيقاف الإدخال الصوتي',
+                toastVoiceError: 'الإدخال الصوتي غير مدعوم',
+                toastPhoto: 'تم التقاط الصورة',
+            }
+        };
+
+        // ===================== 应用状态 =====================
+        let currentLang = 'en';
+        let selectedClassification = '';
+        let selectedRootCauses = [];
+        let selectedActions = [];
+        let photoData = null;
+        let isRecording = false;
+        let recognition = null;
+
+        // ===================== 初始化 =====================
+        function init() {
+            setCurrentDate();
+            populateAreas();
+            updateSavedCount();
+            setupNameListener();
+
+            // 尝试从 localStorage 恢复语言偏好
+            const savedLang = localStorage.getItem('safetyReportLang');
+            if (savedLang && savedLang !== currentLang) {
+                currentLang = savedLang;
+                applyLanguage();
+            }
+        }
+
+        // 设置当前日期
+        function setCurrentDate() {
+            const now = new Date();
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString(
+                currentLang === 'ar' ? 'ar-EG' : 'en-US', options
+            );
+        }
+
+        // 填充区域下拉列表
+        function populateAreas() {
+            const select = document.getElementById('areaSelect');
+            const areas = i18n[currentLang].areas;
+            // 清除现有选项（保留第一个 placeholder）
+            while (select.options.length > 1) select.remove(1);
+            areas.forEach(area => {
+                const opt = document.createElement('option');
+                opt.value = area;
+                opt.textContent = area;
+                select.appendChild(opt);
+            });
+        }
+
+        // 监听名字输入，显示欢迎信息
+        function setupNameListener() {
+            const nameInput = document.getElementById('userName');
+            nameInput.addEventListener('input', () => {
+                const name = nameInput.value.trim();
+                const welcomeRow = document.getElementById('welcomeRow');
+                const welcomeText = document.getElementById('welcomeText');
+                if (name.length > 0) {
+                    welcomeRow.style.display = 'flex';
+                    welcomeText.textContent = `${i18n[currentLang].welcome} ${name}`;
+                } else {
+                    welcomeRow.style.display = 'none';
+                }
+            });
+        }
+
+        // ===================== 语言切换 =====================
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'ar' : 'en';
+            localStorage.setItem('safetyReportLang', currentLang);
+            applyLanguage();
+        }
+
+        function applyLanguage() {
+            const html = document.documentElement;
+            html.lang = currentLang;
+            html.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+
+            const t = i18n[currentLang];
+
+            // 更新所有 data-i18n 元素
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (t[key]) el.textContent = t[key];
+            });
+
+            // 更新占位符
+            document.querySelectorAll('[data-placeholder-i18n]').forEach(el => {
+                const key = el.getAttribute('data-placeholder-i18n');
+                if (t[key]) el.placeholder = t[key];
+            });
+
+            // 更新语言按钮标签
+            document.getElementById('langLabel').textContent = t.langLabel;
+
+            // 更新标题
+            document.getElementById('headerTitle').textContent = t.headerTitle;
+            document.getElementById('headerSub').textContent = t.headerSub;
+
+            // 更新日期格式
+            setCurrentDate();
+
+            // 更新区域选项
+            populateAreas();
+
+            // 更新欢迎信息
+            const name = document.getElementById('userName').value.trim();
+            if (name) {
+                document.getElementById('welcomeText').textContent = `${t.welcome} ${name}`;
+            }
+
+            // 更新 body 字体
+            document.body.style.fontFamily = currentLang === 'ar'
+                ? "'Cairo', 'DM Sans', sans-serif"
+                : "'DM Sans', 'Cairo', sans-serif";
+        }
+
+        // ===================== 分类选择 =====================
+        function selectClassification(value) {
+            selectedClassification = value;
+            document.querySelectorAll('#classBtns .class-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.class === value);
+            });
+        }
+
+        // ===================== 复选框切换 =====================
+        function toggleCheck(btn, group) {
+            const value = btn.dataset.cause || btn.dataset.action;
+            const isActive = btn.classList.contains('active');
+
+            btn.classList.toggle('active');
+
+            // 切换勾选图标
+            const icon = btn.querySelector('.check-icon i');
+            icon.style.display = isActive ? 'none' : 'inline';
+
+            // 管理选中项
+            const arr = group === 'rootCauses' ? selectedRootCauses : selectedActions;
+            if (isActive) {
+                const idx = arr.indexOf(value);
+                if (idx > -1) arr.splice(idx, 1);
+            } else {
+                arr.push(value);
+            }
+
+            // 处理 "其他" 输入框显示
+            if (value === 'other') {
+                const inputId = group === 'rootCauses' ? 'rootCausesOtherInput' : 'actionsOtherInput';
+                document.getElementById(inputId).classList.toggle('show', !isActive);
+            }
+        }
+
+        // ===================== 语音输入 =====================
+        function toggleVoiceInput() {
+            const micBtn = document.getElementById('micBtn');
+
+            // 如果正在录制，停止
+            if (isRecording) {
+                stopVoiceInput();
+                return;
+            }
+
+            // 检查浏览器支持
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                showToast(i18n[currentLang].toastVoiceError, 'error');
+                return;
+            }
+
+            recognition = new SpeechRecognition();
+            recognition.lang = currentLang === 'ar' ? 'ar-EG' : 'en-US';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            recognition.onstart = () => {
+                isRecording = true;
+                micBtn.classList.add('recording');
+                micBtn.querySelector('i').className = 'fas fa-stop';
+                showToast(i18n[currentLang].toastVoiceStart, 'info');
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                const descInput = document.getElementById('descInput');
+                descInput.value += (descInput.value ? ' ' : '') + transcript;
+            };
+
+            recognition.onerror = () => {
+                stopVoiceInput();
+            };
+
+            recognition.onend = () => {
+                stopVoiceInput();
+            };
+
+            recognition.start();
+        }
+
+        function stopVoiceInput() {
+            isRecording = false;
+            const micBtn = document.getElementById('micBtn');
+            micBtn.classList.remove('recording');
+            micBtn.querySelector('i').className = 'fas fa-microphone';
+            if (recognition) {
+                try { recognition.stop(); } catch(e) {}
+            }
+        }
+
+        // ===================== 相机功能 =====================
+        function openCamera() {
+            document.getElementById('cameraInput').click();
+        }
+
+        function handlePhoto(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                photoData = e.target.result;
+                document.getElementById('photoImg').src = photoData;
+                document.getElementById('photoPreview').classList.add('show');
+                showToast(i18n[currentLang].toastPhoto, 'success');
+            };
+            reader.readAsDataURL(file);
+            // 重置 input 以允许再次选择同一文件
+            event.target.value = '';
+        }
+
+        function removePhoto() {
+            photoData = null;
+            document.getElementById('photoPreview').classList.remove('show');
+        }
+
+        // ===================== 收集表单数据 =====================
+        function collectData() {
+            const t = i18n[currentLang];
+            const name = document.getElementById('userName').value.trim();
+            const sector = document.getElementById('userSector').value.trim();
+            const area = document.getElementById('areaSelect').value;
+            const desc = document.getElementById('descInput').value.trim();
+
+            // 获取分类文本
+            const classMap = {
+                safe: t.safe,
+                unsafeCondition: t.unsafeCond,
+                unsafeAct: t.unsafeAct,
+                nearMiss: t.nearMiss,
+            };
+
+            // 获取根本原因文本
+            const causeMap = {
+                lackOfTraining: t.lackTraining,
+                equipmentFailure: t.equipFail,
+                poorHousekeeping: t.poorHouse,
+                unsafeBehavior: t.unsafeBehavior,
+                other: t.other + (document.getElementById('rootCausesOtherText').value.trim()
+                    ? `: ${document.getElementById('rootCausesOtherText').value.trim()}` : ''),
+            };
+
+            // 获取行动文本
+            const actionMap = {
+                fixImmediately: t.fixNow,
+                cleanArea: t.cleanArea,
+                provideTraining: t.provideTrain,
+                stopEquipment: t.stopEquip,
+                other: t.other + (document.getElementById('actionsOtherText').value.trim()
+                    ? `: ${document.getElementById('actionsOtherText').value.trim()}` : ''),
+            };
+
+            const causes = selectedRootCauses
+                .map(c => causeMap[c]).filter(Boolean).join('\n   • ');
+
+            const actions = selectedActions
+                .map(a => actionMap[a]).filter(Boolean).join('\n   • ');
+
+            const now = new Date();
+            const dateStr = now.toLocaleString(currentLang === 'ar' ? 'ar-EG' : 'en-US', {
+                year: 'numeric', month: 'short', day: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            });
+
+            return {
+                name, sector, area, desc,
+                classification: classMap[selectedClassification] || '—',
+                causes: causes || '—',
+                actions: actions || '—',
+                hasPhoto: !!photoData,
+                date: dateStr,
+                timestamp: now.getTime()
+            };
+        }
+
+        // 构建WhatsApp消息文本
+        function buildMessage(data) {
+            const t = i18n[currentLang];
+            const line = '━━━━━━━━━━━━━━';
+            const photoNote = data.hasPhoto
+                ? `\n📷 ${t.photoAttached}`
+                : '';
+
+            return `${currentLang === 'ar' ? '🔧' : '🔧'} *${t.headerTitle}*\n${line}\n` +
+                `${currentLang === 'ar' ? '👤' : '👤'} ${currentLang === 'ar' ? 'الاسم' : 'Name'}: ${data.name}\n` +
+                `${currentLang === 'ar' ? '🏭' : '🏭'} ${currentLang === 'ar' ? 'القطاع' : 'Sector'}: ${data.sector || '—'}\n` +
+                `${currentLang === 'ar' ? '📅' : '📅'} ${currentLang === 'ar' ? 'التاريخ' : 'Date'}: ${data.date}\n` +
+                `${currentLang === 'ar' ? '📍' : '📍'} ${t.area}: ${data.area}\n` +
+                `${currentLang === 'ar' ? '📝' : '📝'} ${t.description}: ${data.desc}\n` +
+                `${currentLang === 'ar' ? '🏷️' : '🏷️'} ${t.classification}: ${data.classification}\n` +
+                `${currentLang === 'ar' ? '🔍' : '🔍'} ${t.rootCauses}:\n   • ${data.causes}\n` +
+                `${currentLang === 'ar' ? '⚡' : '⚡'} ${t.actionNeeded}:\n   • ${data.actions}\n` +
+                `${photoNote}\n${line}\n` +
+                `${t.headerSub}`;
+        }
+
+        // ===================== 保存报告 =====================
+        function saveReport() {
+            const data = collectData();
+            if (!validateRequired(data)) return;
+
+            // 保存到 localStorage
+            const reports = JSON.parse(localStorage.getItem('safetyReports') || '[]');
+            reports.unshift(data); // 最新的在前
+            localStorage.setItem('safetyReports', JSON.stringify(reports));
+
+            updateSavedCount();
+            showToast(i18n[currentLang].toastSaved, 'success');
+        }
+
+        function validateRequired(data) {
+            if (!data.name || !data.area || !data.desc) {
+                showToast(i18n[currentLang].toastFill, 'error');
+                // 高亮缺失字段
+                if (!data.name) flashField('userName');
+                if (!data.area) flashField('areaSelect');
+                if (!data.desc) flashField('descInput');
+                return false;
+            }
+            return true;
+        }
+
+        function flashField(id) {
+            const el = document.getElementById(id);
+            el.style.borderColor = '#dc2626';
+            el.style.boxShadow = '0 0 0 3px rgba(220,38,38,0.15)';
+            setTimeout(() => {
+                el.style.borderColor = '';
+                el.style.boxShadow = '';
+            }, 2500);
+        }
+
+        function updateSavedCount() {
+            const reports = JSON.parse(localStorage.getItem('safetyReports') || '[]');
+            const badge = document.getElementById('savedBadge');
+            const count = document.getElementById('savedCount');
+            if (reports.length > 0) {
+                badge.style.display = 'flex';
+                count.textContent = reports.length;
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        // ===================== 发送WhatsApp =====================
+        function sendWhatsApp() {
+            const data = collectData();
+            if (!validateRequired(data)) return;
+
+            const message = buildMessage(data);
+            const encoded = encodeURIComponent(message);
+            const url = `https://wa.me/201200003791?text=${encoded}`;
+
+            window.open(url, '_blank');
+            showToast(i18n[currentLang].toastSent, 'info');
+        }
+
+        // ===================== 发送邮件 =====================
+        function sendEmail() {
+            const data = collectData();
+            if (!validateRequired(data)) return;
+
+            const t = i18n[currentLang];
+            const subject = encodeURIComponent(`${t.headerTitle} - ${data.name} - ${data.date}`);
+            
+            // 构建纯文本邮件正文
+            const body = buildMessage(data).replace(/\*/g, '').replace(/━/g, '─');
+            const encodedBody = encodeURIComponent(body);
+
+            const url = `mailto:Ibrahim.Fatah@titan.com.eg?subject=${subject}&body=${encodedBody}`;
+            window.location.href = url;
+            showToast(i18n[currentLang].toastEmail, 'info');
+        }
+
+        // ===================== Toast通知 =====================
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast toast-${type} show`;
+
+            clearTimeout(toast._timeout);
+            toast._timeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2800);
+        }
+
+        // ===================== 启动 =====================
+        init();
+    </script>
+</body>
+</html>
